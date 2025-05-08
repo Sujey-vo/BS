@@ -1,0 +1,29 @@
+{
+  "name": "bs",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sujey-vo/BS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sujey-vo/BS/issues"
+  },
+  "homepage": "https://github.com/Sujey-vo/BS#readme",
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "firebase": "^11.7.1",
+    "firebase-admin": "^13.3.0",
+    "nodemailer": "^6.10.1",
+    "pdfkit": "^0.16.0"
+  }
+}

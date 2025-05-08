@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo de Citas - Bamba Studio</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5ecec;
+      color: #333;
+      line-height: 1.6;
+    }
+    header {
+      background-color: #19191a;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 {
+      font-size: 2em;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    nav ul li {
+      margin: 0 15px;
+    }
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav ul li a:hover {
+      color: #f2dede;
+    }
+    main {
+      padding: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      margin-bottom: 40px;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #f5ecec;
+      color: #19191a;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #f2dede;
+    }
+    .cancelar {
+      background-color: #e74c3c;
+      color: white;
+    }
+    .cancelar:hover {
+      background-color: #c0392b;
+    }
+    .completar {
+      background-color: #3498db;
+      color: white;
+    }
+    .completar:hover {
+      background-color: #2980b9;
+    }
+    .editar {
+      background-color: #f1c40f;
+      color: #19191a;
+    }
+    .editar:hover {
+      background-color: #d4ac0d;
+    }
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #19191a;
+      color: white;
+    }
+    tr:hover {
+      background-color: #f2dede;
+    }
+    #editFormContainer {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+    #mensaje {
+      margin: 10px 0;
+      padding: 10px;
+      background: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    #mensaje:empty {
+      display: none;
+    }
+    .error {
+      color: #e74c3c;
+      font-size: 0.9em;
+    }
+    footer {
+      background-color: #19191a;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      position: relative;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Bamba Studio</h1>
+    <nav>
+      <ul>
+        <li><a href="#">Inicio</a></li>
+        <li><a href="#">Citas</a></li>
+        <li><a href="#">Contacto</a></li>
+      </ul>
+    </nav>
+    <button id="logoutBtn" style="padding: 5px 10px; background-color: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer;">Cerrar Sesión</button>
+  </header>
+
+  <main>
+    <h2>Agregar Cita</h2>
+    <form id="citaForm">
+      <label for="nombre">Nombre del cliente:</label>
+      <input type="text" id="nombre" name="cliente_nombre" required>
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required>
+      <label for="fecha">Fecha:</label>
+      <input type="date" id="fecha" name="fecha" required>
+      <label for="hora">Hora:</label>
+      <input type="time" id="hora" name="hora" required min="10:00" max="20:00">
+      <button type="submit">Guardar Cita</button>
+    </form>
+    <p id="mensaje"></p>
+
+    <h2>Citas Registradas</h2>
+    <table id="citasTable">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Fecha</th>
+          <th>Hora</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="citasBody"></tbody>
+    </table>
+
+    <div id="editFormContainer">
+      <h3>Editar Cita</h3>
+      <form id="editForm">
+        <input type="hidden" id="editId">
+        <label for="editNombre">Nombre del cliente:</label>
+        <input type="text" id="editNombre" name="cliente_nombre" required>
+        <label for="editEmail">Email:</label>
+        <input type="email" id="editEmail" name="email" required>
+        <label for="editFecha">Fecha:</label>
+        <input type="date" id="editFecha" name="fecha" required>
+        <label for="editHora">Hora:</label>
+        <input type="time" id="editHora" name="hora" required min="10:00" max="20:00">
+        <label for="editEstado">Estado:</label>
+        <select id="editEstado" name="estado">
+          <option value="pendiente">Pendiente</option>
+          <option value="completada">Completada</option>
+          <option value="cancelada">Cancelada</option>
+        </select>
+        <button type="submit">Guardar Cambios</button>
+        <button type="button" onclick="cerrarEditForm()" class="cancelar">Cancelar</button>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 Bamba Studio. Todos los derechos reservados.</p>
+  </footer>
+
+  <script>
+    const form = document.getElementById('citaForm');
+    const mensaje = document.getElementById('mensaje');
+    const citasBody = document.getElementById('citasBody');
+    const editFormContainer = document.getElementById('editFormContainer');
+    const editForm = document.getElementById('editForm');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    // Validar fecha no pasada
+    function esFechaValida(fecha) {
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      const fechaSeleccionada = new Date(fecha);
+      return fechaSeleccionada >= hoy;
+    }
+
+    // Validar horario (10:00 AM - 8:00 PM)
+    function esHoraValida(hora) {
+      const [horas, minutos] = hora.split(':').map(Number);
+      const horaEnMinutos = horas * 60 + minutos;
+      const inicio = 10 * 60; // 10:00 AM = 600 minutos
+      const fin = 20 * 60;    // 8:00 PM = 1200 minutos
+      return horaEnMinutos >= inicio && horaEnMinutos <= fin;
+    }
+
+    // Guardar cita
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const datos = {
+        cliente_nombre: form.nombre.value.trim(),
+        email: form.email.value.trim(),
+        fecha: form.fecha.value,
+        hora: form.hora.value
+      };
+
+      if (!datos.cliente_nombre) {
+        mensaje.textContent = 'El nombre del cliente es obligatorio.';
+        mensaje.className = 'error';
+        return;
+      }
+      if (!datos.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.email)) {
+        mensaje.textContent = 'Ingresa un email válido.';
+        mensaje.className = 'error';
+        return;
+      }
+      if (!esFechaValida(datos.fecha)) {
+        mensaje.textContent = 'La fecha no puede ser anterior a hoy.';
+        mensaje.className = 'error';
+        return;
+      }
+      if (!datos.hora || !esHoraValida(datos.hora)) {
+        mensaje.textContent = 'La hora debe estar entre 10:00 AM y 8:00 PM.';
+        mensaje.className = 'error';
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/citas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(datos)
+        });
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText);
+        }
+        const resultado = await response.text();
+        mensaje.textContent = resultado;
+        mensaje.className = '';
+        form.reset();
+        cargarCitas();
+      } catch (error) {
+        mensaje.textContent = error.message;
+        mensaje.className = 'error';
+      }
+    });
+
+    // Cargar citas
+    async function cargarCitas() {
+      try {
+        const response = await fetch('/api/citas');
+        const citas = await response.json();
+        citasBody.innerHTML = '';
+        for (const id in citas) {
+          const cita = citas[id];
+          const completarDisabled = cita.estado === 'completada' ? 'disabled' : '';
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${cita.cliente_nombre}</td>
+            <td>${cita.email}</td>
+            <td>${cita.fecha}</td>
+            <td>${cita.hora}</td>
+            <td>${cita.estado}</td>
+            <td>
+              <button class="editar" onclick="abrirEditForm('${id}', '${cita.cliente_nombre}', '${cita.email}', '${cita.fecha}', '${cita.hora}', '${cita.estado}')">Editar</button>
+              <button class="completar" onclick="marcarCompletada('${id}')" ${completarDisabled}>Completar</button>
+              <button class="cancelar" onclick="cancelarCita('${id}')">Cancelar</button>
+            </td>
+          `;
+          citasBody.appendChild(row);
+        }
+      } catch (error) {
+        console.error('Error cargando citas:', error);
+      }
+    }
+
+    // Marcar como completada
+    async function marcarCompletada(id) {
+      try {
+        const response = await fetch(`/api/citas/${id}/completar`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const resultado = await response.text();
+        mensaje.textContent = resultado;
+        mensaje.className = '';
+        cargarCitas();
+      } catch (error) {
+        mensaje.textContent = 'Error: ' + error.message;
+        mensaje.className = 'error';
+      }
+    }
+
+    // Cancelar cita
+    async function cancelarCita(id) {
+      try {
+        const response = await fetch(`/api/citas/${id}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const resultado = await response.text();
+        mensaje.textContent = resultado;
+        mensaje.className = '';
+        cargarCitas();
+      } catch (error) {
+        mensaje.textContent = 'Error: ' + error.message;
+        mensaje.className = 'error';
+      }
+    }
+
+    // Abrir formulario de edición
+    function abrirEditForm(id, nombre, email, fecha, hora, estado) {
+      document.getElementById('editId').value = id;
+      document.getElementById('editNombre').value = nombre;
+      document.getElementById('editEmail').value = email;
+      document.getElementById('editFecha').value = fecha;
+      document.getElementById('editHora').value = hora;
+      document.getElementById('editEstado').value = estado;
+      editFormContainer.style.display = 'block';
+    }
+
+    // Cerrar formulario de edición
+    function cerrarEditForm() {
+      editFormContainer.style.display = 'none';
+    }
+
+    // Guardar cambios (editar)
+    editForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('editId').value;
+      const datos = {
+        cliente_nombre: document.getElementById('editNombre').value.trim(),
+        email: document.getElementById('editEmail').value.trim(),
+        fecha: document.getElementById('editFecha').value,
+        hora: document.getElementById('editHora').value,
+        estado: document.getElementById('editEstado').value
+      };
+
+      if (!datos.cliente_nombre) {
+        mensaje.textContent = 'El nombre del cliente es obligatorio.';
+        mensaje.className = 'error';
+        return;
+      }
+      if (!datos.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.email)) {
+        mensaje.textContent = 'Ingresa un email válido.';
+        mensaje.className = 'error';
+        return;
+      }
+      if (!esFechaValida(datos.fecha)) {
+        mensaje.textContent = 'La fecha no puede ser anterior a hoy.';
+        mensaje.className = 'error';
+        return;
+      }
+      if (!datos.hora || !esHoraValida(datos.hora)) {
+        mensaje.textContent = 'La hora debe estar entre 10:00 AM y 8:00 PM.';
+        mensaje.className = 'error';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/citas/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(datos)
+        });
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText);
+        }
+        const resultado = await response.text();
+        mensaje.textContent = resultado;
+        mensaje.className = '';
+        cerrarEditForm();
+        cargarCitas();
+      } catch (error) {
+        mensaje.textContent = error.message;
+        mensaje.className = 'error';
+      }
+    });
+
+    // Logout
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        const response = await fetch('/api/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (response.ok) {
+          window.location.href = '/INDEX/INDEX/REGISTRO INCIAR SESION/login.html';
+        }
+      } catch (error) {
+        console.error('Error al cerrar sesión:', error);
+        mensaje.textContent = 'Error al cerrar sesión';
+        mensaje.className = 'error';
+      }
+    });
+
+    // Cargar citas al iniciar
+    cargarCitas();
+  </script>
+</body>
+</html>
