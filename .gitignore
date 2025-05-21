@@ -1,0 +1,23 @@
+node_modules/ 
+bamba-studio-firebase-adminsdk.json 
+
+# Ignorar node_modules
+node_modules/
+
+# Ignorar archivos de logs
+*.log
+
+# Ignorar archivos de entorno (credenciales sensibles)
+.env
+
+# Ignorar archivos temporales
+*.tmp
+*.cache
+
+# Ignorar archivos de compilación o backups
+*.bak
+*.swp
+
+# Ignorar carpetas específicas (si las tienes)
+dist/
+build/
